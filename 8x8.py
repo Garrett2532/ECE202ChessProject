@@ -2,10 +2,6 @@ import RPi.GPIO as GPIO
 import time
 
 
-
-
-
-
 def getImput():
             toPrint = []
             for b in testpins:
@@ -13,9 +9,6 @@ def getImput():
                 toPrint.append(button_state)
             print(toPrint)
             print(testpins)
-
-
-
 
 GPIO.setmode(GPIO.BOARD)
 testpins = [36,32,31,33,35,37,38,40]
@@ -63,9 +56,6 @@ a = [[0,0,0,1,1,1,0,0],
       [0,1,1,0,0,1,1,0],
       [0,1,1,0,0,1,1,0],
       [1,1,0,0,0,0,1,1]]
-
-
-
 
 
 ani = [lity, dim, lit]
