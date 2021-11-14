@@ -3,7 +3,6 @@ import time
 
 buttons = [22,24,26,32] 
 
-
 def setup():
        GPIO.setmode(GPIO.BOARD)
        for b in buttons:
