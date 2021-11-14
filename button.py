@@ -21,7 +21,6 @@ def loop():
 def endprogram():
          GPIO.cleanup()
 
-
 if __name__ == '__main__':
           
           setup()
