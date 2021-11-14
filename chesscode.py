@@ -8,18 +8,20 @@ from adafruit_mcp230xx.mcp23017 import MCP23017
 
 GPIO.setmode(GPIO.BCM)
 
-def lightBoard(animation,speed):                      #funtion to light the proper LED lights 
+
+#FUNCTIONS
+def lightBoard(animation,speed):                                             #funtion to light the proper LED lights 
     sleepTime = .001
     
     GPIO.setmode(GPIO.BCM)
 
     for cathode in cathodes:
-     GPIO.setup(cathode, GPIO.OUT)
+     GPIO.setup(cathode, GPIO.OUT)                                          #setting up pins as GPIO to function with the pi
      GPIO.output(cathode, 0)
     for anode in anodes:
          GPIO.setup(anode, GPIO.OUT)
          GPIO.output(anode, 0)
-   # while(True): taking out inf loop until we get buttons working with code
+  
     for frame in range(len(animation)):                                     #3d loop containng frames in the animation and lines in the frams
                 for pause in range (speed):
                     for i in range(8):
@@ -39,8 +41,8 @@ def lightBoard(animation,speed):                      #funtion to light the prop
 def getLegalMoves(chessboard,s):
 
 
-    cfile = s[0]                           #file is the A in A1 (0-7) to be done with buttons later 
-    rank = s[1]                                       #rank is the 1 in A1 (0-7)
+    cfile = s[0]                                                             #file is the A in A1 (0-7) to be done with buttons later 
+    rank = s[1]                                                               #rank is the 1 in A1 (0-7)
 
     spot  = chess.square(cfile, rank)
     legalMoves = (list(chessboard.generate_legal_moves(from_mask=chess.BB_SQUARES[spot])))
@@ -50,12 +52,12 @@ def getLegalMoves(chessboard,s):
         if(len(t) > 2):
             if(t[-1] == '+' or t[-1] == '#'):
                 t = t[:-1]
-        while(len(t) > 2):                          #get rid of any symbols and like R for rook or + for check or x for taking a peice
+        while(len(t) > 2):                                                   #get rid of any symbols and like R for rook or + for check or x for taking a peice
          t= t[1:]
         legalIndex.append(chess.parse_square(t))
 
 
-    boardlight  =  [[1,1,1,1,1,1,1,1],              #get inital board state for LEDs
+    boardlight  =  [[1,1,1,1,1,1,1,1],                                       #get inital board state for LEDs
                 [1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1],
@@ -79,7 +81,7 @@ def getSquare(chessboard,toFrom,ani):
     #code for the buttons will go here
     GPIO.setmode(GPIO.BCM) 
     GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    i2c = busio.I2C(board.SCL, board.SDA)
+    i2c = busio.I2C(board.SCL, board.SDA)                               #code for for using the MCP23017 chip with the pi
 
 # Create an instance of either the MCP23008 or MCP23017 class depending on
 # which chip you're using:
@@ -94,7 +96,7 @@ def getSquare(chessboard,toFrom,ani):
         File.append(mcp.get_pin(pin))
 
     for pin in rank:
-        pin.direction = Direction.INPUT
+        pin.direction = Direction.INPUT                                 #set new pins as GPIO
         pin.pull = Pull.UP
     
     for pin in File:
@@ -104,23 +106,23 @@ def getSquare(chessboard,toFrom,ani):
     fileb = False
     rankval = -1
     fileval = -1
-    while(True):
+    while(True):                                                        #loop until button is pressed
         if rankb == True:
             break
         for num, button in enumerate(rank):
             if(toFrom):
                 lightBoard(ani,1)
-            if not button.value:
-                print("Button ", num , "pressed")
+            if not button.value:                                      
+                print("Button ", num , "pressed")                      
                 rankval = num
                 rankb = True
                 break
             else:
-                state = GPIO.input(21);
+                state = GPIO.input(21);                                 #checks if reset button is pressed
                 if(state==False):
-                   startTime = time.time()
+                   startTime = time.time()                          
                    while(GPIO.input(21) == False):
-                       if(time.time()-startTime > 3):
+                       if(time.time()-startTime > 3):                   #if pressed for 3 seconds restart game if released before take back the last button press for selecting peice
                        #restart the game
                            print("restarting game...")
                            print("")
@@ -139,7 +141,7 @@ def getSquare(chessboard,toFrom,ani):
             if(toFrom):
                 lightBoard(ani,1)
             if not button.value :
-                print( "Button ", num ," pressed")
+                print( "Button ", num ," pressed")                  #waits for second button press to get the file of the sleected peice 
                 print("")
                 fileval = num
                 fileb = True
@@ -164,7 +166,7 @@ def getAni(i):
                 [1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1],
                 [1,1,1,1,1,1,1,1],
-                [1,1,1,1,1,1,1,1]]
+                [1,1,1,1,1,1,1,1]]				#mark the inxex given as a 0 to light up only that spot so that the player can see what peice is selected or where they placed the piece
       
     r = int(i/8)
     index = i%8
@@ -174,8 +176,8 @@ def getAni(i):
 
     
 
-
-#program starts here
+#NONFUCNTIONS
+#program starts running here
 reset =         [[0,0,0,0,0,0,0,0],              #get inital board state for LEDs
                 [0,0,0,0,0,0,0,0],
                 [1,1,1,1,1,1,1,1],
@@ -202,13 +204,13 @@ badmove =      [[0,1,0,1,0,1,0,1],              #get inital board state for LEDs
                 [1,0,1,0,1,0,1,0],
                 [0,1,0,1,0,1,0,1],
                 [1,0,1,0,1,0,1,0]]
-mintime = 5#5
+mintime = 5#5									#times for how long LEDS will stay on
 shortTime =50 #50
 midTime = 75#75
 longTime = 100#100
 longestTime =200 #200
 
-cathodes = [4,17,27,22,10,9,11,0]               #need to change this 
+cathodes = [4,17,27,22,10,9,11,0]               #correspond to pins on the pi
 anodes = [14,15,18,23,24,25,8,7]
 chessboard = chess.Board()
 
@@ -217,7 +219,7 @@ chessboard = chess.Board()
 print(chessboard)
 print("")
 lightBoard([reset],longTime)
-while(True):
+while(True):									#loops until the game is over
     if(gameOver(chessboard)):                        #breaks the inf loop when checkmate is detected 
         #do Stuff before game is over?
         winner = "White"
@@ -243,8 +245,9 @@ while(True):
              #other things to handle illegal moves here blink board?check if pinned?
 
          else:
-            t =  getLegalMoves(chessboard,fromsq) #add things like blinking spot for a king in check here       
-            ani = [t]                           #if that square has moves then light up the board
+            t =  getLegalMoves(chessboard,fromsq) 
+			#TODO: add things like blinking spot for a king in check here       
+            ani = [t]                           				#if that square has moves then light up the board
             lightBoard(ani,midTime)
             
             tosq = getSquare(chessboard,True,ani)             #gets square fromm buttons txt imput right now
@@ -265,10 +268,10 @@ while(True):
                         s = ""
                         s = s + chess.square_name(fsquare)
                         s = s + chess.square_name(tsquare)
-                        chessboard.push(chess.Move.from_uci(s))      #code that makes the move
+                        chessboard.push(chess.Move.from_uci(s))      #code that makes the move in computer
                         ani = [getAni(i)]
                         for  i in range (2):
-                            lightBoard([dim],midTime)
+                            lightBoard([dim],midTime)				#light and dim baord multiple times to show where peice is going
                             lightBoard(ani, midTime)
                         print(chessboard)
                         print("")
@@ -290,33 +293,3 @@ while(True):
                 lightBoard([badmove],midTime)
                 print("Illegal move that piece cannot move there")
                 print("")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
